@@ -46,7 +46,7 @@
     <input type="hidden" id="rowNumber">
 
     <form id="candidateForm">
-        <div class="form-group"><label>Position ID</label><input type="text" id="Position ID" required></div>
+        <div class="form-group"><label>Position ID.</label><input type="text" id="Position ID" required></div>
         <div class="form-group"><label>Role</label><input type="text" id="Role" required></div>
         <div class="form-group">
             <label>Candidate Status</label>
@@ -93,7 +93,7 @@
         <table id="candidateTable">
             <thead>
                 <tr>
-                    <th>S.No</th><th>Position ID</th><th>Role</th><th>Status</th><th>Candidate Name</th>
+                    <th>S.No</th><th>Position ID.</th><th>Role</th><th>Status</th><th>Candidate Name</th>
                     <th>Contact</th><th>Mail ID</th><th>Designation</th><th>Department</th>
                     <th>Interview Date</th><th>Offered Date</th><th>DOJ</th><th>CTC</th>
                     <th>Variable</th><th>Source</th><th>Acceptance</th><th>Remarks</th><th>Actions</th>
@@ -141,7 +141,7 @@
             let tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${row["S.no"] || ''}</td>
-                <td>${row["Position ID"] || ''}</td>
+                <td>${row["Position ID."] || ''}</td>
                 <td>${row["Role"] || ''}</td>
                 <td>${row["Candidate Status"] || ''}</td>
                 <td>${row["Candidate Name"] || ''}</td>
