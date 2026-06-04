@@ -4,50 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Candidate Registration Portal</title>
+    <script>
+        // Inline Route Guard: Redirect back to login if session key is missing
+        if (localStorage.getItem("portalSession") !== "authenticated") {
+            window.location.href = "login.html";
+        }
+    </script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
+        body { font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
         .container { max-width: 1200px; margin: 0 auto; background: white; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 8px; }
-        h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
+        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
         form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 30px; background: #eef2f3; padding: 20px; border-radius: 6px; }
         .form-group { display: flex; flex-direction: column; }
         label { font-weight: 600; margin-bottom: 5px; font-size: 0.85em; color: #4a5568; }
-        input, select { padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 0.9em; background: white; }
-        input:focus, select:focus { outline: none; border-color: #3182ce; }
+        input, select { padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 0.9em; }
         .full-width { grid-column: 1 / -1; display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
-        button { padding: 10px 24px; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 0.95em; transition: opacity 0.2s; }
-        button:hover { opacity: 0.9; }
+        button { padding: 10px 24px; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 0.95em; }
         .btn-submit { background-color: #28a745; color: white; }
         .btn-update { background-color: #007bff; color: white; display: none; }
         .btn-cancel { background-color: #6c757d; color: white; display: none; }
+        .btn-logout { background-color: #e53e3e; color: white; padding: 6px 15px; font-size: 0.9em; }
         .table-responsive { overflow-x: auto; margin-top: 20px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; }
         table { width: 100%; border-collapse: collapse; font-size: 0.85em; text-align: left; }
         th, td { border-bottom: 1px solid #e2e8f0; padding: 12px 16px; white-space: nowrap; }
-        th { background-color: #2d3748; color: white; font-weight: 600; }
+        th { background-color: #2d3748; color: white; }
         tr:nth-child(even) td { background-color: #f7fafc; }
         .action-btns button { padding: 4px 10px; margin: 0 2px; font-size: 0.85em; border-radius: 3px; }
         .btn-edit { background: #ecc94b; color: #744210; }
         .btn-delete { background: #e53e3e; color: white; }
-        #loading { display: none; text-align: center; font-weight: bold; color: #2b6cb0; margin: 15px 0; font-size: 1.1em; }
+        #loading { display: none; text-align: center; font-weight: bold; color: #2b6cb0; margin: 15px 0; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Candidate Registration Portal</h2>
+    <div class="header-bar">
+        <h2>Candidate Registry</h2>
+        <button class="btn-logout" onclick="logout()">Log Out</button>
+    </div>
+    
     <input type="hidden" id="rowNumber">
 
     <form id="candidateForm">
-        <div class="form-group">
-            <label>Position ID</label>
-            <input type="text" id="positionId" required>
-        </div>
-        <div class="form-group">
-            <label>Role</label>
-            <input type="text" id="role" required>
-        </div>
+        <div class="form-group"><label>Position ID</label><input type="text" id="Position ID" required></div>
+        <div class="form-group"><label>Role</label><input type="text" id="Role" required></div>
         <div class="form-group">
             <label>Candidate Status</label>
-            <select id="candidateStatus">
+            <select id="Candidate Status">
                 <option value="Applied">Applied</option>
                 <option value="Interviewing">Interviewing</option>
                 <option value="Offered">Offered</option>
@@ -55,62 +58,26 @@
                 <option value="Rejected">Rejected</option>
             </select>
         </div>
-        <div class="form-group">
-            <label>Candidate Name</label>
-            <input type="text" id="candidateName" required>
-        </div>
-        <div class="form-group">
-            <label>Contact No</label>
-            <input type="text" id="contactNo" required>
-        </div>
-        <div class="form-group">
-            <label>Mail Id</label>
-            <input type="email" id="mailId" required>
-        </div>
-        <div class="form-group">
-            <label>Designation</label>
-            <input type="text" id="designation">
-        </div>
-        <div class="form-group">
-            <label>Department</label>
-            <input type="text" id="department">
-        </div>
-        <div class="form-group">
-            <label>Interview Date</label>
-            <input type="date" id="interviewDate">
-        </div>
-        <div class="form-group">
-            <label>Offered Date</label>
-            <input type="date" id="offeredDate">
-        </div>
-        <div class="form-group">
-            <label>Date of Joining</label>
-            <input type="date" id="dateOfJoining">
-        </div>
-        <div class="form-group">
-            <label>CTC</label>
-            <input type="number" id="ctc">
-        </div>
-        <div class="form-group">
-            <label>Variable</label>
-            <input type="text" id="variable">
-        </div>
-        <div class="form-group">
-            <label>Source</label>
-            <input type="text" id="source">
-        </div>
+        <div class="form-group"><label>Candidate Name</label><input type="text" id="Candidate Name" required></div>
+        <div class="form-group"><label>Contact No</label><input type="text" id="Contact No" required></div>
+        <div class="form-group"><label>Mail Id</label><input type="email" id="Mail Id" required></div>
+        <div class="form-group"><label>Designation</label><input type="text" id="Designation"></div>
+        <div class="form-group"><label>Department</label><input type="text" id="Department"></div>
+        <div class="form-group"><label>Interview Date</label><input type="date" id="Interview Date"></div>
+        <div class="form-group"><label>Offered Date</label><input type="date" id="Offered Date"></div>
+        <div class="form-group"><label>Date of Joining</label><input type="date" id="Date of Joining"></div>
+        <div class="form-group"><label>CTC</label><input type="number" id="CTC"></div>
+        <div class="form-group"><label>Variable</label><input type="text" id="variable"></div>
+        <div class="form-group"><label>Source</label><input type="text" id="Source"></div>
         <div class="form-group">
             <label>Offer Acceptance</label>
-            <select id="offerAcceptance">
+            <select id="Offer Acceptance">
                 <option value="Pending">Pending</option>
                 <option value="Accepted">Accepted</option>
                 <option value="Declined">Declined</option>
             </select>
         </div>
-        <div class="form-group" style="grid-column: span 2;">
-            <label>Remarks</label>
-            <input type="text" id="remarks">
-        </div>
+        <div class="form-group" style="grid-column: span 2;"><label>Remarks</label><input type="text" id="Remarks"></div>
 
         <div class="full-width">
             <button type="button" class="btn-submit" id="submitBtn" onclick="saveRecord('create')">Register Candidate</button>
@@ -119,31 +86,17 @@
         </div>
     </form>
 
-    <div id="loading">Syncing database changes...</div>
+    <div id="loading">Updating system data records...</div>
 
-    <h3>Registered Candidates Database</h3>
+    <h3>Synchronized Candidate Workspace</h3>
     <div class="table-responsive">
         <table id="candidateTable">
             <thead>
                 <tr>
-                    <th>S.No</th>
-                    <th>Position ID</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Candidate Name</th>
-                    <th>Contact</th>
-                    <th>Mail ID</th>
-                    <th>Designation</th>
-                    <th>Department</th>
-                    <th>Interview Date</th>
-                    <th>Offered Date</th>
-                    <th>DOJ</th>
-                    <th>CTC</th>
-                    <th>Variable</th>
-                    <th>Source</th>
-                    <th>Acceptance</th>
-                    <th>Remarks</th>
-                    <th>Actions</th>
+                    <th>S.No</th><th>Position ID</th><th>Role</th><th>Status</th><th>Candidate Name</th>
+                    <th>Contact</th><th>Mail ID</th><th>Designation</th><th>Department</th>
+                    <th>Interview Date</th><th>Offered Date</th><th>DOJ</th><th>CTC</th>
+                    <th>Variable</th><th>Source</th><th>Acceptance</th><th>Remarks</th><th>Actions</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -152,8 +105,12 @@
 </div>
 
 <script>
-    // PASTE YOUR REFRESSED GOOGLE APPS SCRIPT WEB APP URL HERE
-    const API_URL = "https://script.google.com/macros/s/AKfycbwutmR5hRjb_sppUcI0FogNwqoruVYIM4k_JgAjBLxZ6gsBV0n58ozVApaSHSS-d1o0CQ/exec"; 
+    // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
+    const API_URL = "https://script.google.com/macros/s/AKfycbwutmR5hRjb_sppUcI0FogNwqoruVYIM4k_JgAjBLxZ6gsBV0n58ozVApaSHSS-d1o0CQ/exec";
+    const TARGET_TAB = "Candidate"; // Tells the script which operational sheet to target
+    
+    // Explicit array definitions matching Form field inputs and Google header values
+    const fields = ["Position ID", "Role", "Candidate Status", "Candidate Name", "Contact No", "Mail Id", "Designation", "Department", "Interview Date", "Offered Date", "Date of Joining", "CTC", "variable", "Source", "Offer Acceptance", "Remarks"];
     let allData = [];
 
     window.onload = function() {
@@ -164,24 +121,17 @@
         document.getElementById('loading').style.display = show ? 'block' : 'none';
     }
 
-    // Dynamic Read Handler via clean GET operation
     function fetchData() {
         showLoading(true);
-        fetch(`${API_URL}?action=read`, { method: "GET", redirect: "follow" })
+        fetch(`${API_URL}?action=read&sheetName=${encodeURIComponent(TARGET_TAB)}`, { method: "GET", redirect: "follow" })
         .then(res => res.json())
         .then(response => {
             if(response.status === "success") {
                 allData = response.data;
                 renderTable(allData);
-            } else {
-                alert("Database synchronization error: " + response.message);
             }
             showLoading(false);
-        })
-        .catch(err => { 
-            console.error("Fetch failed:", err); 
-            showLoading(false); 
-        });
+        }).catch(err => { console.error(err); showLoading(false); });
     }
 
     function renderTable(data) {
@@ -216,37 +166,19 @@
         });
     }
 
-    // Unified Creation & Update Engine using Query Params on GET requests to fully avoid CORS blocks
     function saveRecord(action) {
-        // Simple client side check for required elements
-        if(!document.getElementById('positionId').value || !document.getElementById('role').value || !document.getElementById('candidateName').value) {
-            alert("Please fill in the required fields: Position ID, Role, and Candidate Name.");
-            return;
-        }
-
         showLoading(true);
-        let targetUrl = `${API_URL}?action=${action}`;
+        let targetUrl = `${API_URL}?action=${action}&sheetName=${encodeURIComponent(TARGET_TAB)}`;
         
         if(action === 'update') {
             targetUrl += `&rowNumber=${document.getElementById('rowNumber').value}`;
         }
 
-        targetUrl += `&positionId=${encodeURIComponent(document.getElementById('positionId').value)}` +
-                     `&role=${encodeURIComponent(document.getElementById('role').value)}` +
-                     `&candidateStatus=${encodeURIComponent(document.getElementById('candidateStatus').value)}` +
-                     `&candidateName=${encodeURIComponent(document.getElementById('candidateName').value)}` +
-                     `&contactNo=${encodeURIComponent(document.getElementById('contactNo').value)}` +
-                     `&mailId=${encodeURIComponent(document.getElementById('mailId').value)}` +
-                     `&designation=${encodeURIComponent(document.getElementById('designation').value)}` +
-                     `&department=${encodeURIComponent(document.getElementById('department').value)}` +
-                     `&interviewDate=${encodeURIComponent(document.getElementById('interviewDate').value)}` +
-                     `&offeredDate=${encodeURIComponent(document.getElementById('offeredDate').value)}` +
-                     `&dateOfJoining=${encodeURIComponent(document.getElementById('dateOfJoining').value)}` +
-                     `&ctc=${encodeURIComponent(document.getElementById('ctc').value)}` +
-                     `&variable=${encodeURIComponent(document.getElementById('variable').value)}` +
-                     `&source=${encodeURIComponent(document.getElementById('source').value)}` +
-                     `&offerAcceptance=${encodeURIComponent(document.getElementById('offerAcceptance').value)}` +
-                     `&remarks=${encodeURIComponent(document.getElementById('remarks').value)}`;
+        // Loop through schema fields dynamically to assemble URL strings safely
+        fields.forEach(field => {
+            const val = document.getElementById(field).value;
+            targetUrl += `&${encodeURIComponent(field)}=${encodeURIComponent(val)}`;
+        });
 
         fetch(targetUrl, { method: 'GET', redirect: 'follow' })
         .then(res => res.json())
@@ -254,11 +186,7 @@
             alert(res.message);
             resetForm();
             fetchData();
-        })
-        .catch(err => { 
-            console.error("Submission failed:", err); 
-            showLoading(false); 
-        });
+        }).catch(err => { console.error(err); showLoading(false); });
     }
 
     function editRecord(rowNumber) {
@@ -266,22 +194,9 @@
         if(!record) return;
 
         document.getElementById('rowNumber').value = rowNumber;
-        document.getElementById('positionId').value = record["Position ID"] || '';
-        document.getElementById('role').value = record["Role"] || '';
-        document.getElementById('candidateStatus').value = record["Candidate Status"] || 'Applied';
-        document.getElementById('candidateName').value = record["Candidate Name"] || '';
-        document.getElementById('contactNo').value = record["Contact No"] || '';
-        document.getElementById('mailId').value = record["Mail Id"] || '';
-        document.getElementById('designation').value = record["Designation"] || '';
-        document.getElementById('department').value = record["Department"] || '';
-        document.getElementById('interviewDate').value = record["Interview Date"] || '';
-        document.getElementById('offeredDate').value = record["Offered Date"] || '';
-        document.getElementById('dateOfJoining').value = record["Date of Joining"] || '';
-        document.getElementById('ctc').value = record["CTC"] || '';
-        document.getElementById('variable').value = record["variable"] || '';
-        document.getElementById('source').value = record["Source"] || '';
-        document.getElementById('offerAcceptance').value = record["Offer Acceptance"] || 'Pending';
-        document.getElementById('remarks').value = record["Remarks"] || '';
+        fields.forEach(field => {
+            document.getElementById(field).value = record[field] || '';
+        });
 
         document.getElementById('submitBtn').style.display = 'none';
         document.getElementById('updateBtn').style.display = 'inline-block';
@@ -290,18 +205,14 @@
     }
 
     function deleteRecord(rowNumber) {
-        if(confirm("Confirm deletion of this candidate file?")) {
+        if(confirm("Confirm record deletion?")) {
             showLoading(true);
-            fetch(`${API_URL}?action=delete&rowNumber=${rowNumber}`, { method: 'GET', redirect: 'follow' })
+            fetch(`${API_URL}?action=delete&sheetName=${encodeURIComponent(TARGET_TAB)}&rowNumber=${rowNumber}`, { method: 'GET', redirect: 'follow' })
             .then(res => res.json())
             .then(res => {
                 alert(res.message);
                 fetchData();
-            })
-            .catch(err => { 
-                console.error("Deletion failure:", err); 
-                showLoading(false); 
-            });
+            }).catch(err => { console.error(err); showLoading(false); });
         }
     }
 
@@ -311,6 +222,11 @@
         document.getElementById('submitBtn').style.display = 'inline-block';
         document.getElementById('updateBtn').style.display = 'none';
         document.getElementById('cancelBtn').style.display = 'none';
+    }
+
+    function logout() {
+        localStorage.removeItem("portalSession");
+        window.location.href = "login.html";
     }
 </script>
 </body>
