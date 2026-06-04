@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Registration Portal</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 8px; }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
+        form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 30px; background: #eef2f3; padding: 20px; border-radius: 6px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-weight: 600; margin-bottom: 5px; font-size: 0.85em; color: #4a5568; }
+        input, select { padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 0.9em; background: white; }
+        input:focus, select:focus { outline: none; border-color: #3182ce; }
+        .full-width { grid-column: 1 / -1; display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
+        button { padding: 10px 24px; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 0.95em; transition: opacity 0.2s; }
+        button:hover { opacity: 0.9; }
+        .btn-submit { background-color: #28a745; color: white; }
+        .btn-update { background-color: #007bff; color: white; display: none; }
+        .btn-cancel { background-color: #6c757d; color: white; display: none; }
+        .table-responsive { overflow-x: auto; margin-top: 20px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85em; text-align: left; }
+        th, td { border-bottom: 1px solid #e2e8f0; padding: 12px 16px; white-space: nowrap; }
+        th { background-color: #2d3748; color: white; font-weight: 600; }
+        tr:nth-child(even) td { background-color: #f7fafc; }
+        .action-btns button { padding: 4px 10px; margin: 0 2px; font-size: 0.85em; border-radius: 3px; }
+        .btn-edit { background: #ecc94b; color: #744210; }
+        .btn-delete { background: #e53e3e; color: white; }
+        #loading { display: none; text-align: center; font-weight: bold; color: #2b6cb0; margin: 15px 0; font-size: 1.1em; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Candidate Registration Portal</h2>
+    <input type="hidden" id="rowNumber">
+
+    <form id="candidateForm">
+        <div class="form-group">
+            <label>Position ID</label>
+            <input type="text" id="positionId" required>
+        </div>
+        <div class="form-group">
+            <label>Role</label>
+            <input type="text" id="role" required>
+        </div>
+        <div class="form-group">
+            <label>Candidate Status</label>
+            <select id="candidateStatus">
+                <option value="Applied">Applied</option>
+                <option value="Interviewing">Interviewing</option>
+                <option value="Offered">Offered</option>
+                <option value="Joined">Joined</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Candidate Name</label>
+            <input type="text" id="candidateName" required>
+        </div>
+        <div class="form-group">
+            <label>Contact No</label>
+            <input type="text" id="contactNo" required>
+        </div>
+        <div class="form-group">
+            <label>Mail Id</label>
+            <input type="email" id="mailId" required>
+        </div>
+        <div class="form-group">
+            <label>Designation</label>
+            <input type="text" id="designation">
+        </div>
+        <div class="form-group">
+            <label>Department</label>
+            <input type="text" id="department">
+        </div>
+        <div class="form-group">
+            <label>Interview Date</label>
+            <input type="date" id="interviewDate">
+        </div>
+        <div class="form-group">
+            <label>Offered Date</label>
+            <input type="date" id="offeredDate">
+        </div>
+        <div class="form-group">
+            <label>Date of Joining</label>
+            <input type="date" id="dateOfJoining">
+        </div>
+        <div class="form-group">
+            <label>CTC</label>
+            <input type="number" id="ctc">
+        </div>
+        <div class="form-group">
+            <label>Variable</label>
+            <input type="text" id="variable">
+        </div>
+        <div class="form-group">
+            <label>Source</label>
+            <input type="text" id="source">
+        </div>
+        <div class="form-group">
+            <label>Offer Acceptance</label>
+            <select id="offerAcceptance">
+                <option value="Pending">Pending</option>
+                <option value="Accepted">Accepted</option>
+                <option value="Declined">Declined</option>
+            </select>
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+            <label>Remarks</label>
+            <input type="text" id="remarks">
+        </div>
+
+        <div class="full-width">
+            <button type="button" class="btn-submit" id="submitBtn" onclick="saveRecord('create')">Register Candidate</button>
+            <button type="button" class="btn-update" id="updateBtn" onclick="saveRecord('update')">Update Details</button>
+            <button type="button" class="btn-cancel" id="cancelBtn" onclick="resetForm()">Cancel</button>
+        </div>
+    </form>
+
+    <div id="loading">Syncing database changes...</div>
+
+    <h3>Registered Candidates Database</h3>
+    <div class="table-responsive">
+        <table id="candidateTable">
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Position ID</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Candidate Name</th>
+                    <th>Contact</th>
+                    <th>Mail ID</th>
+                    <th>Designation</th>
+                    <th>Department</th>
+                    <th>Interview Date</th>
+                    <th>Offered Date</th>
+                    <th>DOJ</th>
+                    <th>CTC</th>
+                    <th>Variable</th>
+                    <th>Source</th>
+                    <th>Acceptance</th>
+                    <th>Remarks</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // PASTE YOUR REFRESSED GOOGLE APPS SCRIPT WEB APP URL HERE
+    const API_URL = "https://script.google.com/macros/s/AKfycbwutmR5hRjb_sppUcI0FogNwqoruVYIM4k_JgAjBLxZ6gsBV0n58ozVApaSHSS-d1o0CQ/exec"; 
+    let allData = [];
+
+    window.onload = function() {
+        fetchData();
+    };
+
+    function showLoading(show) {
+        document.getElementById('loading').style.display = show ? 'block' : 'none';
+    }
+
+    // Dynamic Read Handler via clean GET operation
+    function fetchData() {
+        showLoading(true);
+        fetch(`${API_URL}?action=read`, { method: "GET", redirect: "follow" })
+        .then(res => res.json())
+        .then(response => {
+            if(response.status === "success") {
+                allData = response.data;
+                renderTable(allData);
+            } else {
+                alert("Database synchronization error: " + response.message);
+            }
+            showLoading(false);
+        })
+        .catch(err => { 
+            console.error("Fetch failed:", err); 
+            showLoading(false); 
+        });
+    }
+
+    function renderTable(data) {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = "";
+        data.forEach(row => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row["S.no"] || ''}</td>
+                <td>${row["Position ID"] || ''}</td>
+                <td>${row["Role"] || ''}</td>
+                <td>${row["Candidate Status"] || ''}</td>
+                <td>${row["Candidate Name"] || ''}</td>
+                <td>${row["Contact No"] || ''}</td>
+                <td>${row["Mail Id"] || ''}</td>
+                <td>${row["Designation"] || ''}</td>
+                <td>${row["Department"] || ''}</td>
+                <td>${row["Interview Date"] || ''}</td>
+                <td>${row["Offered Date"] || ''}</td>
+                <td>${row["Date of Joining"] || ''}</td>
+                <td>${row["CTC"] || ''}</td>
+                <td>${row["variable"] || ''}</td>
+                <td>${row["Source"] || ''}</td>
+                <td>${row["Offer Acceptance"] || ''}</td>
+                <td>${row["Remarks"] || ''}</td>
+                <td class="action-btns">
+                    <button class="btn-edit" onclick="editRecord(${row.rowNumber})">Edit</button>
+                    <button class="btn-delete" onclick="deleteRecord(${row.rowNumber})">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Unified Creation & Update Engine using Query Params on GET requests to fully avoid CORS blocks
+    function saveRecord(action) {
+        // Simple client side check for required elements
+        if(!document.getElementById('positionId').value || !document.getElementById('role').value || !document.getElementById('candidateName').value) {
+            alert("Please fill in the required fields: Position ID, Role, and Candidate Name.");
+            return;
+        }
+
+        showLoading(true);
+        let targetUrl = `${API_URL}?action=${action}`;
+        
+        if(action === 'update') {
+            targetUrl += `&rowNumber=${document.getElementById('rowNumber').value}`;
+        }
+
+        targetUrl += `&positionId=${encodeURIComponent(document.getElementById('positionId').value)}` +
+                     `&role=${encodeURIComponent(document.getElementById('role').value)}` +
+                     `&candidateStatus=${encodeURIComponent(document.getElementById('candidateStatus').value)}` +
+                     `&candidateName=${encodeURIComponent(document.getElementById('candidateName').value)}` +
+                     `&contactNo=${encodeURIComponent(document.getElementById('contactNo').value)}` +
+                     `&mailId=${encodeURIComponent(document.getElementById('mailId').value)}` +
+                     `&designation=${encodeURIComponent(document.getElementById('designation').value)}` +
+                     `&department=${encodeURIComponent(document.getElementById('department').value)}` +
+                     `&interviewDate=${encodeURIComponent(document.getElementById('interviewDate').value)}` +
+                     `&offeredDate=${encodeURIComponent(document.getElementById('offeredDate').value)}` +
+                     `&dateOfJoining=${encodeURIComponent(document.getElementById('dateOfJoining').value)}` +
+                     `&ctc=${encodeURIComponent(document.getElementById('ctc').value)}` +
+                     `&variable=${encodeURIComponent(document.getElementById('variable').value)}` +
+                     `&source=${encodeURIComponent(document.getElementById('source').value)}` +
+                     `&offerAcceptance=${encodeURIComponent(document.getElementById('offerAcceptance').value)}` +
+                     `&remarks=${encodeURIComponent(document.getElementById('remarks').value)}`;
+
+        fetch(targetUrl, { method: 'GET', redirect: 'follow' })
+        .then(res => res.json())
+        .then(res => {
+            alert(res.message);
+            resetForm();
+            fetchData();
+        })
+        .catch(err => { 
+            console.error("Submission failed:", err); 
+            showLoading(false); 
+        });
+    }
+
+    function editRecord(rowNumber) {
+        const record = allData.find(r => r.rowNumber === rowNumber);
+        if(!record) return;
+
+        document.getElementById('rowNumber').value = rowNumber;
+        document.getElementById('positionId').value = record["Position ID"] || '';
+        document.getElementById('role').value = record["Role"] || '';
+        document.getElementById('candidateStatus').value = record["Candidate Status"] || 'Applied';
+        document.getElementById('candidateName').value = record["Candidate Name"] || '';
+        document.getElementById('contactNo').value = record["Contact No"] || '';
+        document.getElementById('mailId').value = record["Mail Id"] || '';
+        document.getElementById('designation').value = record["Designation"] || '';
+        document.getElementById('department').value = record["Department"] || '';
+        document.getElementById('interviewDate').value = record["Interview Date"] || '';
+        document.getElementById('offeredDate').value = record["Offered Date"] || '';
+        document.getElementById('dateOfJoining').value = record["Date of Joining"] || '';
+        document.getElementById('ctc').value = record["CTC"] || '';
+        document.getElementById('variable').value = record["variable"] || '';
+        document.getElementById('source').value = record["Source"] || '';
+        document.getElementById('offerAcceptance').value = record["Offer Acceptance"] || 'Pending';
+        document.getElementById('remarks').value = record["Remarks"] || '';
+
+        document.getElementById('submitBtn').style.display = 'none';
+        document.getElementById('updateBtn').style.display = 'inline-block';
+        document.getElementById('cancelBtn').style.display = 'inline-block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deleteRecord(rowNumber) {
+        if(confirm("Confirm deletion of this candidate file?")) {
+            showLoading(true);
+            fetch(`${API_URL}?action=delete&rowNumber=${rowNumber}`, { method: 'GET', redirect: 'follow' })
+            .then(res => res.json())
+            .then(res => {
+                alert(res.message);
+                fetchData();
+            })
+            .catch(err => { 
+                console.error("Deletion failure:", err); 
+                showLoading(false); 
+            });
+        }
+    }
+
+    function resetForm() {
+        document.getElementById('candidateForm').reset();
+        document.getElementById('rowNumber').value = '';
+        document.getElementById('submitBtn').style.display = 'inline-block';
+        document.getElementById('updateBtn').style.display = 'none';
+        document.getElementById('cancelBtn').style.display = 'none';
+    }
+</script>
+</body>
+</html>
